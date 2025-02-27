@@ -10,40 +10,40 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("My Calculator")
         self.setGeometry((1920-400) / 2, (1080-600) / 2, 400, 600)
         self.setWindowIcon(QIcon("assets/calcIcon.png"))
+        self.setStyleSheet("background-color: gray;")
 
         self.initUI()
     
     def initUI(self):
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
+        self.textLabel = QLabel("0",self)
+        self.textLabel.setFont(QFont("Impact",35))
+        self.textLabel.setStyleSheet("background-color: green;")
+        self.textLabel.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.textLabel.setMaximumHeight(int(self.height() * 0.2))
         self.numberButtons = [QPushButton(str(x),self) for x in range(0,10)]
 
         for x in range(0,10):
+            self.numberButtons[x].setMinimumHeight(50)
+            self.numberButtons[x].setStyleSheet("background-color: white;")
             self.numberButtons[x].clicked.connect(lambda checked,x=x: on_click(self,x))
 
-        hbox_top = QHBoxLayout()
-        hbox_mid = QHBoxLayout()
-        hbox_bot = QHBoxLayout()
-        vbox = QVBoxLayout()
+        gridLayout = QGridLayout()
 
-        for x in range(7,10):
-            hbox_top.addWidget(self.numberButtons[x])
+        gridLayout.addWidget(self.textLabel,0,0,1,3)
 
-        for x in range(4,7):
-            hbox_mid.addWidget(self.numberButtons[x])
+        for row in range(3):
+            for col in range(3):
+                val = 3*row + col + 3 - (col * 2)
+                gridLayout.addWidget(self.numberButtons[10 - val],row+1,col)
 
-        for x in range(1,4):
-            hbox_bot.addWidget(self.numberButtons[x])
-        
-        vbox.addLayout(hbox_top)
-        vbox.addLayout(hbox_mid)
-        vbox.addLayout(hbox_bot)
 
-        central_widget.setLayout(vbox)
+        gridLayout.addWidget(self.numberButtons[0],4,0,1,3)
+        centralWidget.setLayout(gridLayout)
 
         def on_click(self,value):
-            print (value + 1)
+            self.textLabel.setText(str(value))
 
 def main():
     app = QApplication(sys.argv)
