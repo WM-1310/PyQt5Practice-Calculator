@@ -1,8 +1,14 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, 
-QVBoxLayout,QHBoxLayout,QGridLayout, QPushButton, QCheckBox)
+QVBoxLayout,QHBoxLayout,QGridLayout, QPushButton, QCheckBox, QSizePolicy)
 from PyQt5.QtGui import QIcon,QFont,QPixmap
 from PyQt5.QtCore import Qt
+
+#--------- N A M I N G _ C O N V E N T I O N ---------------
+# Variables: var_name
+# Functions: funcName
+# Classes/Objects: VarName
+#--------- N A M I N G _ C O N V E N T I O N ---------------
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -15,35 +21,55 @@ class MainWindow(QMainWindow):
         self.initUI()
     
     def initUI(self):
+        self.current_value = 0
+        self.previous_value = 0
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
-        self.textLabel = QLabel("0",self)
+        self.textLabel = QLabel(str(self.current_value),self)
         self.textLabel.setFont(QFont("Impact",35))
-        self.textLabel.setStyleSheet("background-color: green;")
+        self.textLabel.setStyleSheet("background-color: green;"
+        "padding-right: 1 px;")
         self.textLabel.setAlignment(Qt.AlignRight | Qt.AlignBottom)
-        self.textLabel.setMaximumHeight(int(self.height() * 0.2))
+        self.textLabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         self.numberButtons = [QPushButton(str(x),self) for x in range(0,10)]
 
+        self.operationsButtons = [QPushButton(x,self) for x in ['+','-','X','/','ENTER','CLEAR']]
+
         for x in range(0,10):
-            self.numberButtons[x].setMinimumHeight(50)
+            self.numberButtons[x].setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
             self.numberButtons[x].setStyleSheet("background-color: white;")
-            self.numberButtons[x].clicked.connect(lambda checked,x=x: on_click(self,x))
+            self.numberButtons[x].clicked.connect(lambda checked,x=x: on_click_numbers(self,x))
+
+        for x in range(len(self.operationsButtons)):
+            self.operationsButtons[x].setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+            self.operationsButtons[x].setStyleSheet("background-color: white;")
+            self.operationsButtons[x].clicked.connect(lambda checked,x=x: on_click_numbers(self,x))
 
         gridLayout = QGridLayout()
 
-        gridLayout.addWidget(self.textLabel,0,0,1,3)
+        gridLayout.addWidget(self.textLabel,0,0,1,5)
 
         for row in range(3):
             for col in range(3):
                 val = 3*row + col + 3 - (col * 2)
                 gridLayout.addWidget(self.numberButtons[10 - val],row+1,col)
 
+        gridLayout.addWidget(self.operationsButtons[0],1,3)
+        gridLayout.addWidget(self.operationsButtons[1],1,4)
+        gridLayout.addWidget(self.operationsButtons[2],2,3)
+        gridLayout.addWidget(self.operationsButtons[3],2,4)
+        gridLayout.addWidget(self.operationsButtons[4],3,3,2,1)
+        gridLayout.addWidget(self.operationsButtons[5],3,4,2,1)
 
         gridLayout.addWidget(self.numberButtons[0],4,0,1,3)
         centralWidget.setLayout(gridLayout)
 
-        def on_click(self,value):
-            self.textLabel.setText(str(value))
+        def on_click_numbers(self,value):
+            self.current_value = (self.current_value * 10) + value
+            self.textLabel.setText(str(self.current_value))
+
+        def on_click_operations(self):
+            pass
 
 def main():
     app = QApplication(sys.argv)
