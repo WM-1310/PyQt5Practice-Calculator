@@ -1,8 +1,14 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QWidget, 
-QVBoxLayout,QHBoxLayout,QGridLayout, QPushButton, QCheckBox)
+QVBoxLayout,QHBoxLayout,QGridLayout, QPushButton, QCheckBox, QSizePolicy)
 from PyQt5.QtGui import QIcon,QFont,QPixmap
 from PyQt5.QtCore import Qt
+
+#--------- N A M I N G _ C O N V E N T I O N ---------------
+# Variables: var_name
+# Functions: funcName
+# Classes/Objects: VarName
+#--------- N A M I N G _ C O N V E N T I O N ---------------
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -10,40 +16,60 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("My Calculator")
         self.setGeometry((1920-400) / 2, (1080-600) / 2, 400, 600)
         self.setWindowIcon(QIcon("assets/calcIcon.png"))
+        self.setStyleSheet("background-color: gray;")
 
         self.initUI()
     
     def initUI(self):
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
+        self.current_value = 0
+        self.previous_value = 0
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
+        self.textLabel = QLabel(str(self.current_value),self)
+        self.textLabel.setFont(QFont("Impact",35))
+        self.textLabel.setStyleSheet("background-color: green;"
+        "padding-right: 1 px;")
+        self.textLabel.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        self.textLabel.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         self.numberButtons = [QPushButton(str(x),self) for x in range(0,10)]
 
+        self.operationsButtons = [QPushButton(x,self) for x in ['+','-','X','/','ENTER','CLEAR']]
+
         for x in range(0,10):
-            self.numberButtons[x].clicked.connect(lambda checked,x=x: on_click(self,x))
+            self.numberButtons[x].setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+            self.numberButtons[x].setStyleSheet("background-color: white;")
+            self.numberButtons[x].clicked.connect(lambda checked,x=x: on_click_numbers(self,x))
 
-        hbox_top = QHBoxLayout()
-        hbox_mid = QHBoxLayout()
-        hbox_bot = QHBoxLayout()
-        vbox = QVBoxLayout()
+        for x in range(len(self.operationsButtons)):
+            self.operationsButtons[x].setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+            self.operationsButtons[x].setStyleSheet("background-color: white;")
+            self.operationsButtons[x].clicked.connect(lambda checked,x=x: on_click_numbers(self,x))
 
-        for x in range(7,10):
-            hbox_top.addWidget(self.numberButtons[x])
+        gridLayout = QGridLayout()
 
-        for x in range(4,7):
-            hbox_mid.addWidget(self.numberButtons[x])
+        gridLayout.addWidget(self.textLabel,0,0,1,5)
 
-        for x in range(1,4):
-            hbox_bot.addWidget(self.numberButtons[x])
-        
-        vbox.addLayout(hbox_top)
-        vbox.addLayout(hbox_mid)
-        vbox.addLayout(hbox_bot)
+        for row in range(3):
+            for col in range(3):
+                val = 3*row + col + 3 - (col * 2)
+                gridLayout.addWidget(self.numberButtons[10 - val],row+1,col)
 
-        central_widget.setLayout(vbox)
+        gridLayout.addWidget(self.operationsButtons[0],1,3)
+        gridLayout.addWidget(self.operationsButtons[1],1,4)
+        gridLayout.addWidget(self.operationsButtons[2],2,3)
+        gridLayout.addWidget(self.operationsButtons[3],2,4)
+        gridLayout.addWidget(self.operationsButtons[4],3,3,2,1)
+        gridLayout.addWidget(self.operationsButtons[5],3,4,2,1)
 
-        def on_click(self,value):
-            print (value + 1)
+        gridLayout.addWidget(self.numberButtons[0],4,0,1,3)
+        centralWidget.setLayout(gridLayout)
+
+        def on_click_numbers(self,value):
+            self.current_value = (self.current_value * 10) + value
+            self.textLabel.setText(str(self.current_value))
+
+        def on_click_operations(self):
+            pass
 
 def main():
     app = QApplication(sys.argv)
